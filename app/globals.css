@@ -1,0 +1,53 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap");
+@import "tailwindcss";
+
+@theme {
+  --color-base: #0a0e14;
+  --color-panel: #10151f;
+  --color-panel2: #161c29;
+  --color-line: #212a3a;
+  --color-ink: #e7ebf2;
+  --color-muted: #8892a4;
+  --color-brand: #5b8cff;
+  --color-up: #34d399;
+  --color-down: #f87171;
+  --color-pending: #fbbf24;
+
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
+
+  --shadow-card: 0 1px 0 0 rgba(255, 255, 255, 0.03) inset, 0 8px 24px -12px rgba(0, 0, 0, 0.6);
+
+  --animate-pulse-dot: pulse-dot 1.6s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 currentColor;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+body {
+  background-color: #0a0e14;
+  background-image:
+    radial-gradient(circle at 15% 0%, rgba(91, 140, 255, 0.08), transparent 40%),
+    radial-gradient(circle at 85% 20%, rgba(52, 211, 153, 0.05), transparent 35%);
+  color: #e7ebf2;
+}
+
+::selection {
+  background: rgba(91, 140, 255, 0.3);
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #212a3a;
+  border-radius: 999px;
+}
