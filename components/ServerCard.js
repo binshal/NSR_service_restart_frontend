@@ -4,10 +4,27 @@ import { useState } from "react";
 import StatusBadge from "./StatusBadge";
 import EventLog from "./EventLog";
 
-export default function ServerCard({ server, onFail, onRestart, onDelete, onAddService, onRemoveService }) {
+const HEALTH_LABEL = {
+  healthy: { color: "text-up", label: "healthy" },
+  unhealthy: { color: "text-pending", label: "unhealthy" },
+  not_reporting: { color: "text-down", label: "not reporting" },
+};
+
+export default function ServerCard({
+  server,
+  onFail,
+  onRestart,
+  onDelete,
+  onAddService,
+  onRemoveService,
+  onSetHealth,
+  onSetStorage,
+}) {
   const [busy, setBusy] = useState(false);
   const [logOpen, setLogOpen] = useState(false);
+  const [storageInput, setStorageInput] = useState(server.storage_used_percent ?? 20);
   const isDown = server.server_status === "down";
+  const health = server.health_status || "healthy";
 
   async function run(action) {
     setBusy(true);
@@ -86,6 +103,46 @@ export default function ServerCard({ server, onFail, onRestart, onDelete, onAddS
         >
           {busy ? "restarting…" : "restart nsr"}
         </button>
+      </div>
+
+      <div className="px-4 pb-4 border-t border-line pt-3 space-y-2">
+        <div className="flex items-center justify-between">
+          <span className="text-[11px] font-mono text-muted">health</span>
+          <div className="flex items-center gap-1">
+            <span className={`text-[11px] font-mono ${HEALTH_LABEL[health].color}`}>
+              {HEALTH_LABEL[health].label}
+            </span>
+            <select
+              value={health}
+              onChange={(e) => onSetHealth(server.name, e.target.value)}
+              className="rounded border border-line bg-panel2 text-ink text-[11px] font-mono px-1.5 py-1 focus:outline-none focus:ring-1 focus:ring-brand"
+            >
+              <option value="healthy">healthy</option>
+              <option value="unhealthy">unhealthy</option>
+              <option value="not_reporting">not reporting</option>
+            </select>
+          </div>
+        </div>
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-[11px] font-mono text-muted">storage used</span>
+          <div className="flex items-center gap-1">
+            <input
+              type="number"
+              min={0}
+              max={100}
+              value={storageInput}
+              onChange={(e) => setStorageInput(e.target.value)}
+              className="w-14 rounded border border-line bg-panel2 text-ink text-[11px] font-mono px-1.5 py-1 focus:outline-none focus:ring-1 focus:ring-brand"
+            />
+            <span className="text-[11px] font-mono text-muted">%</span>
+            <button
+              onClick={() => onSetStorage(server.name, Number(storageInput))}
+              className="rounded border border-line px-2 py-1 text-[11px] font-mono text-muted hover:text-brand hover:border-brand/50 transition"
+            >
+              set
+            </button>
+          </div>
+        </div>
       </div>
 
       <div className="border-t border-line">

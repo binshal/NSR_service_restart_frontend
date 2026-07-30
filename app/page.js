@@ -5,8 +5,10 @@ import { api } from "@/lib/api";
 import ServerCard from "@/components/ServerCard";
 import AddServerModal from "@/components/AddServerModal";
 import AddServiceModal from "@/components/AddServiceModal";
+import DpaDashboard from "@/components/dpa/DpaDashboard";
 
 export default function Home() {
+  const [tab, setTab] = useState("nsr"); // "nsr" | "dpa"
   const [servers, setServers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -51,15 +53,41 @@ export default function Home() {
               backup service simulator — fail a server, then let the restart agent bring it back
             </p>
           </div>
-          <button
-            onClick={() => setShowAddServer(true)}
-            className="rounded-md bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand/90 transition"
-          >
-            + add server
-          </button>
+          <div className="flex items-center gap-3">
+            <div className="flex rounded-md border border-line overflow-hidden font-mono text-xs">
+              <button
+                onClick={() => setTab("nsr")}
+                className={`px-3 py-1.5 transition ${
+                  tab === "nsr" ? "bg-brand text-white" : "text-muted hover:text-ink"
+                }`}
+              >
+                nsr console
+              </button>
+              <button
+                onClick={() => setTab("dpa")}
+                className={`px-3 py-1.5 transition border-l border-line ${
+                  tab === "dpa" ? "bg-brand text-white" : "text-muted hover:text-ink"
+                }`}
+              >
+                data protection central
+              </button>
+            </div>
+            {tab === "nsr" && (
+              <button
+                onClick={() => setShowAddServer(true)}
+                className="rounded-md bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand/90 transition"
+              >
+                + add server
+              </button>
+            )}
+          </div>
         </div>
       </header>
 
+      {tab === "dpa" && <DpaDashboard />}
+
+      {tab === "nsr" && (
+      <>
       <div className="max-w-6xl mx-auto px-6 py-4">
         <div className="flex flex-wrap gap-4 text-xs font-mono text-muted">
           <span>
@@ -118,6 +146,14 @@ export default function Home() {
                 await api.removeService(name, serviceId);
                 load();
               }}
+              onSetHealth={async (name, healthStatus) => {
+                await api.setHealth(name, healthStatus);
+                load();
+              }}
+              onSetStorage={async (name, pct) => {
+                await api.setStorage(name, pct);
+                load();
+              }}
             />
           ))}
         </div>
@@ -142,6 +178,8 @@ export default function Home() {
             load();
           }}
         />
+      )}
+      </>
       )}
     </main>
   );
