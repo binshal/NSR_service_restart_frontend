@@ -8,15 +8,6 @@ import WidgetCard from "./WidgetCard";
 
 const NAV_ITEMS = [
   "Dashboard",
-  "Health",
-  "Alerts",
-  "Capacity",
-  "Asset Activities",
-  "Job Activities",
-  "System Management",
-  "Asset Inventory",
-  "Audit",
-  "Administration",
 ];
 
 const DONUT_COLORS = {
