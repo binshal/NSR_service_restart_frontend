@@ -14,6 +14,7 @@ export default function Home() {
   const [error, setError] = useState("");
   const [showAddServer, setShowAddServer] = useState(false);
   const [addServiceFor, setAddServiceFor] = useState(null);
+  const [failureCatalog, setFailureCatalog] = useState([]);
 
   const load = useCallback(async () => {
     try {
@@ -29,6 +30,7 @@ export default function Home() {
 
   useEffect(() => {
     load();
+    api.getFailureCatalog().then((data) => setFailureCatalog(data.failures || [])).catch(() => {});
     const interval = setInterval(load, 8000);
     return () => clearInterval(interval);
   }, [load]);
@@ -50,7 +52,7 @@ export default function Home() {
               NSR <span className="text-brand">console</span>
             </h1>
             <p className="text-xs text-muted mt-0.5">
-              backup service simulator — fail a server, then let the restart agent bring it back
+              NetWorker service simulator — DPA diagnoses the cause, then the agent restarts only affected services when required
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -129,12 +131,17 @@ export default function Home() {
             <ServerCard
               key={server._id}
               server={server}
-              onFail={async (name) => {
-                await api.failServer(name);
+              failureCatalog={failureCatalog}
+              onSimulateFailure={async (name, cause, serviceIds) => {
+                await api.simulateFailure(name, cause, serviceIds);
                 load();
               }}
-              onRestart={async (name) => {
-                await api.restartServer(name);
+              onClearFailure={async (name) => {
+                await api.clearFailure(name);
+                load();
+              }}
+              onRestartServices={async (name, services) => {
+                await api.restartServices(name, services);
                 load();
               }}
               onDelete={async (name) => {

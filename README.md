@@ -25,5 +25,3 @@ Open http://localhost:3000
 4. Deploy
 
 Make sure the backend's `CORS_ORIGIN` includes this Vercel URL once it's live.
-
-before major update
