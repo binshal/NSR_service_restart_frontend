@@ -265,6 +265,77 @@ function HealthSummaryWidget({ health }) {
   );
 }
 
+
+const CAT_COLOR = {
+  service: "#3AA655",
+  storage: "#E8A33D",
+  connectivity: "#6FA9DE",
+  authentication: "#E8A33D",
+  license: "#E8A33D",
+  hardware: "#D9483A",
+  configuration: "#9AA5B1",
+};
+
+// Mirrors what the agent's first tool call sees, with the classification the
+// analysis sub-agent is expected to reach. Anyone watching this widget can
+// predict exactly which clients the workflow will route to the restart agent.
+function RootCauseWidget({ rootCause }) {
+  const categories = Object.entries(rootCause?.byCategory || {});
+  const active = rootCause?.active || [];
+
+  return (
+    <WidgetCard title="Root Cause | Active Failures" subtitle="backup_error classification">
+      {categories.length > 0 && (
+        <div className="flex items-center gap-3 mb-3 flex-wrap">
+          {categories.map(([cat, count]) => (
+            <span key={cat} className="flex items-center gap-1.5 text-[12px] text-gray-600">
+              <span
+                className="w-2 h-2 rounded-full inline-block"
+                style={{ backgroundColor: CAT_COLOR[cat] || "#9AA5B1" }}
+              />
+              {cat} ({count})
+            </span>
+          ))}
+        </div>
+      )}
+      {active.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-4">
+          <div className="w-9 h-9 rounded-full bg-[#3AA655] text-white flex items-center justify-center text-lg mb-2">
+            &#10003;
+          </div>
+          <p className="text-[13px] text-gray-600">No active failures</p>
+        </div>
+      ) : (
+        <div className="space-y-2 max-h-56 overflow-y-auto">
+          {active.map((f) => (
+            <div key={`${f.client_name}-${f.backupjob_id}`} className="border border-gray-100 rounded-md px-3 py-2">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[13px] font-medium text-gray-700">
+                  {f.client_name}
+                  <span className="text-gray-400 font-normal"> ({f.os_type})</span>
+                </span>
+                <span
+                  className="text-[10px] font-medium px-1.5 py-0.5 rounded shrink-0"
+                  style={{
+                    color: f.restart_required ? "#3AA655" : "#D9483A",
+                    backgroundColor: f.restart_required ? "rgba(58,166,85,0.1)" : "rgba(217,72,58,0.1)",
+                  }}
+                >
+                  {f.restart_required ? `restart ${f.target_daemons.join(", ")}` : "no restart"}
+                </span>
+              </div>
+              <p className="text-[12px] text-gray-500 mt-1">{f.title}</p>
+              {!f.restart_required && (
+                <p className="text-[11px] text-gray-400 mt-0.5">&rarr; {f.recommended_action}</p>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </WidgetCard>
+  );
+}
+
 export default function DpaDashboard() {
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
@@ -346,6 +417,10 @@ export default function DpaDashboard() {
               <StorageTopUtilizationWidget storage={data.storage} />
               <StorageSummaryWidget storage={data.storage} />
               <HealthSummaryWidget health={data.health} />
+
+              <div className="lg:col-span-3">
+                <RootCauseWidget rootCause={data.rootCause} />
+              </div>
             </div>
           )}
         </div>

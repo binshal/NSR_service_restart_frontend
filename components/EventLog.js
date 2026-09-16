@@ -6,6 +6,8 @@ const TYPE_COLOR = {
   service_removed: "text-muted",
   health: "text-pending",
   storage: "text-brand",
+  failure_report: "text-down",
+  resolved: "text-up",
 };
 
 function timeAgo(dateStr) {
